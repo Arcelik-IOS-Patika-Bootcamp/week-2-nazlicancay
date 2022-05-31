@@ -6,12 +6,22 @@
 //
 
 import UIKit
+//import XCTest
 
-class ViewController: UIViewController {
+class ViewController: UIViewController , NotificationSettingViewDelegete{
+    
+    func didTapEnableButton() {
+        let alert = UIAlertController(title: "Enable Focus Mode", message: "Focuse Mode is enabled for an hour", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert , animated: true)
+    }
+    
 
     private let notificationView = NotificationSettingView()
     override func viewDidLoad() {
         super.viewDidLoad()
+        notificationView.delegate = self
         view.addSubview(notificationView)
     }
     override func viewWillLayoutSubviews() {
@@ -22,7 +32,13 @@ class ViewController: UIViewController {
 
 }
 
+protocol NotificationSettingViewDelegete : AnyObject {
+    func didTapEnableButton()
+}
+
 class NotificationSettingView : UIView {
+    
+    weak var delegate: NotificationSettingViewDelegete?
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -41,7 +57,9 @@ class NotificationSettingView : UIView {
     
     private let button: UIButton = {
         let button = UIButton()
-        button.setTitle("eneable Notifications", for: .normal)
+        button.setTitle("Eneable Focuse Mode", for: .normal)
+        button.backgroundColor = .blue
+        button.setTitleColor(.white, for: .normal)
         return button
     }()
     
@@ -50,16 +68,27 @@ class NotificationSettingView : UIView {
         addSubview(imageView)
         addSubview(label)
         addSubview(button)
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
         fatalError()
     }
     
+    @objc private func didTapButton(){
+        /// notify controller of tap
+        ///
+        delegate?.didTapEnableButton()
+    }
     override func layoutSubviews() {
         super.layoutSubviews()
         let imageSize = bounds.size.width / 2
+        
         imageView.frame = CGRect(x: (bounds.size.width-imageSize)/2, y: 30, width: imageSize, height: imageSize)
+        
+        label.frame = CGRect(x: -200, y: 30+imageSize+20, width: frame.size.height-20, height: 100)
+        
+        button.frame = CGRect(x: -200, y: imageSize+180, width: frame.size.height, height: 50)
     }
 }
 
